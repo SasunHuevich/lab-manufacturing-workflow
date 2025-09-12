@@ -2,7 +2,7 @@ use uuid::Uuid;
 use crate::state::detail_state::DetailState;
 use std::collections::HashMap;
 use crate::strategy::strategy::Strategy;
-use crate::state::raw::Raw;
+use crate::state::*;
 use crate::operation::operation::Operation;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -79,5 +79,37 @@ mod tests {
         assert_eq!(detail.get_state().name(), "Raw");
         assert!(detail.get_history().is_empty());
         assert_eq!(detail.detail_type, DetailType::Bolt);
+    }
+
+    #[test]
+    fn record_and_get_history() {
+        let strategy = Box::new(DummyStrategy);
+        let mut detail = Detail::new(DetailType::Plate, strategy);
+        detail.record_operation("Drill");
+        detail.record_operation("Grind");
+        let history = detail.get_history();
+        assert_eq!(history.len(), 2);
+        assert_eq!(history[0], "Drill");
+        assert_eq!(history[1], "Grind");
+    }
+
+    #[test]
+    fn set_and_get_state() {
+        let strategy = Box::new(DummyStrategy);
+        let mut detail = Detail::new(DetailType::Pin, strategy);
+        let new_state: Box<dyn DetailState> = Box::new(InProcess);
+        detail.set_state(new_state);
+        assert_eq!(detail.get_state().name(), "InProcess");
+    }
+
+    #[test]
+    fn set_and_get_params() {
+        let strategy = Box::new(DummyStrategy);
+        let mut detail = Detail::new(DetailType::Shaft, strategy);
+        detail.set_params("length", "100");
+        detail.set_params("width", "50");
+        assert_eq!(detail.get_params("length").unwrap(), "100");
+        assert_eq!(detail.get_params("width").unwrap(), "50");
+        assert!(detail.get_params("height").is_none());
     }
 }
