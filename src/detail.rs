@@ -7,7 +7,7 @@ use crate::operation::operation::Operation;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum DetailType {
-    Geat,
+    Gear,
     Shaft,
     Plate,
     Bolt,
@@ -47,7 +47,7 @@ impl Detail {
         self.state = state;
     }
 
-    fn get_state(&self) -> &dyn DetailState {
+    fn get_state(&self) -> &mut dyn DetailState {
         &*self.state
     }
 
