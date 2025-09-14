@@ -13,6 +13,7 @@ pub trait Operation {
     fn execute(&self, detail: &mut Detail) -> OperationResult {
         println!("Executing {}", self.name());
         let chance = rand::thread_rng().gen_range(1..=100);
+        detail.record_operation(self.name());
 
         if chance < 5 {
             let defective_state = detail.mark_defective();
@@ -52,6 +53,8 @@ mod tests {
 
         let op = DummyOperation;
         let result = op.execute(&mut detail);
+
+        assert!(detail.get_history().contains(&op.name().to_string()));
 
         match result {
             OperationResult::Success => assert_eq!(detail.state_name(), "InProcess"),
