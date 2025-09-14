@@ -17,45 +17,54 @@ pub enum DetailType {
 pub struct Detail {
     id: Uuid,
     detail_type: DetailType,
-    state: Box<dyn DetailState>,
+    state: Option<Box<dyn DetailState>>,
     history: Vec<String>,
     params: HashMap<String, String>,
     strategy: Box<dyn Strategy>,
 }
 
 impl Detail {
-    fn new(detail_type: DetailType, strategy: Box<dyn Strategy>) -> Self {
+    pub fn new(detail_type: DetailType, strategy: Box<dyn Strategy>) -> Self {
         Self {
             id: Uuid::new_v4(),
             detail_type,
-            state: Box::new(Raw),
+            state: Some(Box::new(Raw)),
             history: Vec::new(),
             params: HashMap::new(),
             strategy,
         }
     }
 
-    fn record_operation(&mut self, operation_name: &str) {
+    pub fn record_operation(&mut self, operation_name: &str) {
         self.history.push(operation_name.to_string());
     }
 
-    fn get_history(&self) -> &Vec<String>{
+    pub fn get_history(&self) -> &Vec<String>{
        &self.history 
     }
 
-    fn set_state(&mut self, state: Box<dyn DetailState>) {
-        self.state = state;
+    pub fn next_state(&mut self) {
+        let state = self.state.take().expect("State missing");
+        self.state = Some(state.next());
     }
 
-    fn get_state(&self) -> &mut dyn DetailState {
-        &*self.state
+    pub fn mark_defective(&mut self) {
+        let state = self.state.take().expect("State missing");
+        self.state = Some(state.mark_defective());
     }
 
-    fn set_params(&mut self, key: &str, value: &str) {
+    pub fn state_name(&self) -> &'static str {
+        self.state
+        .as_ref()
+        .expect("State missing")
+        .name()
+    }
+
+    pub fn set_params(&mut self, key: &str, value: &str) {
         self.params.insert(key.to_string(), value.to_string());
     }
 
-    fn get_params(&self, key: &str) -> Option<&String> {
+    pub fn get_params(&self, key: &str) -> Option<&String> {
         self.params.get(key)
     }
 }
@@ -75,8 +84,8 @@ mod tests {
     #[test]
     fn new_detail() {
         let strategy = Box::new(DummyStrategy);
-        let detail = Detail::new(DetailType::Bolt, strategy);
-        assert_eq!(detail.get_state().name(), "Raw");
+        let mut detail = Detail::new(DetailType::Bolt, strategy);
+        assert_eq!(detail.state_name(), "Raw");
         assert!(detail.get_history().is_empty());
         assert_eq!(detail.detail_type, DetailType::Bolt);
     }
@@ -97,9 +106,8 @@ mod tests {
     fn set_and_get_state() {
         let strategy = Box::new(DummyStrategy);
         let mut detail = Detail::new(DetailType::Pin, strategy);
-        let new_state: Box<dyn DetailState> = Box::new(InProcess);
-        detail.set_state(new_state);
-        assert_eq!(detail.get_state().name(), "InProcess");
+        detail.next_state();
+        assert_eq!(detail.state_name(), "InProcess");
     }
 
     #[test]
