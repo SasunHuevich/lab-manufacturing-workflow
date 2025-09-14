@@ -33,4 +33,11 @@ mod tests {
         let next_state = finished.next();
         assert_eq!(next_state.name(), "Finished");
     }
+
+    #[test]
+    fn finished_mark_defective() {
+        let finished: Box<dyn DetailState> = Box::new(Finished);
+        let next_state = finished.mark_defective();
+        assert_eq!(next_state.name(), "Defective");
+    }
 }
