@@ -12,9 +12,7 @@ impl DetailState for InProcess {
     fn next(self: Box<Self>) -> Box<dyn DetailState> {
         Box::new(Finished)
     }
-}
 
-impl InProcess {
     fn mark_defective(self: Box<Self>) -> Box<dyn DetailState> {
         Box::new(Defective)
     }

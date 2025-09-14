@@ -10,6 +10,10 @@ impl DetailState for Defective {
     fn next(self: Box<Self>) -> Box<dyn DetailState> {
         self
     }
+
+    fn mark_defective(self: Box<Self>) -> Box<dyn DetailState> {
+        self
+    }
 }
 
 #[cfg(test)]

@@ -1,4 +1,5 @@
 use super::detail_state::DetailState;
+use crate::state::Defective;
 
 pub struct Finished;
 
@@ -9,6 +10,10 @@ impl DetailState for Finished {
 
     fn next(self: Box<Self>) -> Box<dyn DetailState> {
         self
+    }
+
+    fn mark_defective(self: Box<Self>) -> Box<dyn DetailState> {
+        Box::new(Defective)
     }
 }
 

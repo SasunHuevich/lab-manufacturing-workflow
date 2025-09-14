@@ -12,9 +12,7 @@ impl DetailState for Raw {
     fn next(self: Box<Self>) -> Box<dyn DetailState> {
         Box::new(InProcess)
     }
-}
 
-impl Raw {
     fn mark_defective(self: Box<Self>) -> Box<dyn DetailState> {
         Box::new(Defective)
     }
