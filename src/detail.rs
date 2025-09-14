@@ -103,11 +103,19 @@ mod tests {
     }
 
     #[test]
-    fn set_and_get_state() {
+    fn next_state() {
         let strategy = Box::new(DummyStrategy);
         let mut detail = Detail::new(DetailType::Pin, strategy);
         detail.next_state();
         assert_eq!(detail.state_name(), "InProcess");
+    }
+
+    #[test]
+    fn mark_defective() {
+        let strategy = Box::new(DummyStrategy);
+        let mut detail = Detail::new(DetailType::Pin, strategy);
+        detail.mark_defective();
+        assert_eq!(detail.state_name(), "Defective");
     }
 
     #[test]
