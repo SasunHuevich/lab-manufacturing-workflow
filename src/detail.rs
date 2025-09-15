@@ -67,6 +67,10 @@ impl Detail {
     pub fn get_params(&self, key: &str) -> Option<&String> {
         self.params.get(key)
     }
+
+    pub fn get_strategy(&self) -> &dyn Strategy {
+        self.strategy.as_ref()
+    }
 }
 
 
@@ -127,5 +131,13 @@ mod tests {
         assert_eq!(detail.get_params("length").unwrap(), "100");
         assert_eq!(detail.get_params("width").unwrap(), "50");
         assert!(detail.get_params("height").is_none());
+    }
+
+    #[test]
+    fn get_strategy() {
+        let strategy = Box::new(DummyStrategy);
+        let detail = Detail::new(DetailType::Bolt, strategy);
+        let operations = detail.get_strategy().get_operations();
+        assert!(operations.is_empty());
     }
 }
